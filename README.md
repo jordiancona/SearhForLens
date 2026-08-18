@@ -35,25 +35,28 @@ Una aplicación de escritorio moderna desarrollada con **PyQt6** para buscar, re
 
 ## 🚀 Instalación y Uso
 
-### Prerrequisitos
-El proyecto cuenta con su propio entorno virtual en la carpeta `searchforlens/`.
+### 📦 Descarga directa (Recomendado)
 
-Para verificar la instalación de dependencias en el entorno virtual:
-```bash
-searchforlens/bin/python -m pip list
-```
+Para instalar y utilizar **SearchForLens**, únicamente debes **descargar la última versión ejecutable desde la sección de Releases**:
 
-Las dependencias requeridas incluyen `PyQt6`, `requests`, `feedparser`, `google-api-python-client`, `google-auth-httplib2` y `google-auth-oauthlib`.
+1. Dirígete a la pestaña de **Releases** en el repositorio.
+2. Descarga el ejecutable correspondiente a tu sistema operativo (macOS, Windows o Linux).
+3. Abre la aplicación directamente. **No requiere instalación de Python ni configuración de dependencias.**
 
 ---
 
-### 🖥️ Ejecución de la Aplicación
+### 💻 Ejecución desde código fuente (Desarrolladores)
 
-Para iniciar la aplicación usando el entorno virtual:
+Si deseas ejecutar la aplicación desde el código fuente o contribuir al desarrollo:
 
-```bash
-searchforlens/bin/python main.py
-```
+1. **Instalar dependencias**:
+   ```bash
+   pip install -r requirements.txt
+   ```
+2. **Ejecutar la aplicación**:
+   ```bash
+   python main.py
+   ```
 
 ---
 
