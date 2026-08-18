@@ -1,3 +1,5 @@
+import os
+from typing import Optional, List
 from PyQt6.QtWidgets import (
     QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QLabel,
     QPushButton, QTabWidget, QSplitter, QStatusBar, QProgressBar,
