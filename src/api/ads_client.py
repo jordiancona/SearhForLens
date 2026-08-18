@@ -23,12 +23,11 @@ class AdsClient:
             return False, "No se ha proporcionado ninguna API key de NASA ADS."
 
         headers = {"Authorization": f"Bearer {token_to_test}"}
+        params = {"q": "star", "rows": 1, "fl": "id"}
         try:
-            resp = requests.get(ADS_API_ME_URL, headers=headers, timeout=self.timeout)
+            resp = requests.get(ADS_API_SEARCH_URL, headers=headers, params=params, timeout=self.timeout)
             if resp.status_code == 200:
-                data = resp.json()
-                email = data.get("email", "Usuario ADS")
-                return True, f"API Key válida. Autenticado como {email}."
+                return True, "API Key válida. Conexión exitosa con NASA ADS."
             elif resp.status_code == 401:
                 return False, "API Key inválida o no autorizada."
             else:

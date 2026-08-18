@@ -44,8 +44,29 @@ class ConfigManager:
         except Exception as e:
             print(f"Error saving config file: {e}")
 
+    def _load_env_file(self) -> Dict[str, str]:
+        env_vars = {}
+        base_dir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+        for name in [".env.local", ".env"]:
+            path = os.path.join(base_dir, name)
+            if os.path.exists(path):
+                try:
+                    with open(path, "r", encoding="utf-8") as f:
+                        for line in f:
+                            line = line.strip()
+                            if line and not line.startswith("#") and "=" in line:
+                                k, v = line.split("=", 1)
+                                env_vars[k.strip()] = v.strip().strip("'\"")
+                except Exception as e:
+                    print(f"Error loading {name}: {e}")
+        return env_vars
+
     def get_ads_api_key(self) -> str:
-        return self._config.get("ads_api_key", "")
+        key = self._config.get("ads_api_key", "").strip()
+        if not key:
+            env_vars = self._load_env_file()
+            key = env_vars.get("NASA_ADS_KEY") or env_vars.get("ADS_API_KEY") or os.getenv("NASA_ADS_KEY", "") or os.getenv("ADS_API_KEY", "")
+        return key
 
     def set_ads_api_key(self, api_key: str) -> None:
         self._config["ads_api_key"] = api_key.strip()
