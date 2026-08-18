@@ -138,6 +138,7 @@ class ResultsView(QWidget):
 
     gdrive_export_requested = pyqtSignal(list, str)
     gdrive_pdf_requested = pyqtSignal(Article)
+    favorites_changed = pyqtSignal()
 
     def __init__(self, config_manager: ConfigManager, parent=None):
         super().__init__(parent)
@@ -193,6 +194,10 @@ class ResultsView(QWidget):
         self.filter_input.clear()
         self._render_articles(self.all_articles, source_summary)
 
+    def refresh(self):
+        """Re-renders current results view to sync state changes (e.g. favorite updates)."""
+        self._render_articles(self.displayed_articles)
+
     def _render_articles(self, articles: List[Article], source_summary: str = ""):
         self.displayed_articles = articles
 
@@ -246,6 +251,7 @@ class ResultsView(QWidget):
         now_fav = self.config_manager.toggle_favorite(article)
         # Re-render current list to update favorite button icons
         self._render_articles(self.displayed_articles)
+        self.favorites_changed.emit()
 
     def _show_export_menu(self):
         if not self.displayed_articles:

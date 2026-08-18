@@ -65,6 +65,7 @@ class MainWindow(QMainWindow):
 
         # --- MAIN TAB NAVIGATION ---
         self.tab_widget = QTabWidget()
+        self.tab_widget.currentChanged.connect(self._on_tab_changed)
 
         # --- TAB 1: SEARCH & RESULTS ---
         search_tab = QWidget()
@@ -82,6 +83,7 @@ class MainWindow(QMainWindow):
         self.results_view = ResultsView(config_manager=self.config_manager)
         self.results_view.gdrive_export_requested.connect(self._on_gdrive_export_requested)
         self.results_view.gdrive_pdf_requested.connect(self._on_gdrive_pdf_requested)
+        self.results_view.favorites_changed.connect(self._on_favorites_changed_in_results)
         splitter.addWidget(self.results_view)
 
         # Set initial splitter proportion (~32% sidebar, ~68% content)
@@ -94,6 +96,7 @@ class MainWindow(QMainWindow):
         self.favorites_panel = FavoritesPanel(config_manager=self.config_manager)
         self.favorites_panel.gdrive_export_requested.connect(self._on_gdrive_export_requested)
         self.favorites_panel.gdrive_pdf_requested.connect(self._on_gdrive_pdf_requested)
+        self.favorites_panel.favorites_changed.connect(self._on_favorites_changed_in_panel)
         self.tab_widget.addTab(self.favorites_panel, "⭐ Artículos Favoritos")
 
         main_layout.addWidget(self.tab_widget)
@@ -109,6 +112,18 @@ class MainWindow(QMainWindow):
         self.progress_bar.setFixedWidth(160)
         self.progress_bar.setVisible(False)
         self.status_bar.addPermanentWidget(self.progress_bar)
+
+    def _on_tab_changed(self, index: int):
+        if index == 1:
+            self.favorites_panel.reload_favorites()
+        elif index == 0:
+            self.results_view.refresh()
+
+    def _on_favorites_changed_in_results(self):
+        self.favorites_panel.reload_favorites()
+
+    def _on_favorites_changed_in_panel(self):
+        self.results_view.refresh()
 
     def _open_settings(self):
         dialog = SettingsDialog(self.config_manager, parent=self)
