@@ -17,6 +17,9 @@ dist/
 *.spec.log
 
 # User Tokens & Sensitive Configuration (Do not commit secrets or local tokens)
+.env
+.env.local
+.env.*
 config.json
 token.json
 credentials.json
