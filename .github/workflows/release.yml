@@ -1,0 +1,58 @@
+name: Build & Release Executables
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build Executable for ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: macos-latest
+            asset_name: SearchForLens-macOS.zip
+            build_cmd: searchforlens/bin/pyinstaller --clean SearchForLens.spec || pyinstaller --clean SearchForLens.spec
+          - os: windows-latest
+            asset_name: SearchForLens-Windows.zip
+            build_cmd: pyinstaller --clean --noconsole --name SearchForLens main.py
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install PyQt6 requests feedparser google-api-python-client google-auth-httplib2 google-auth-oauthlib pyinstaller
+
+      - name: Build Executable with PyInstaller
+        run: |
+          ${{ matrix.build_cmd }}
+
+      - name: Archive build directory (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          cd dist
+          zip -r ../${{ matrix.asset_name }} SearchForLens.app
+
+      - name: Archive build directory (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          Compress-Archive -Path dist/SearchForLens -DestinationPath ${{ matrix.asset_name }}
+
+      - name: Upload Release Asset
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: ${{ matrix.asset_name }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
