@@ -1,3 +1,4 @@
+import re
 import requests
 from typing import List, Optional, Tuple
 from src.api.models import Article
@@ -84,7 +85,7 @@ class AdsClient:
         headers = {"Authorization": f"Bearer {self.api_key}"}
         params = {
             "q": query,
-            "fl": "id,bibcode,title,author,abstract,pubdate,citation_count,doi,identifier,property,pub",
+            "fl": "id,bibcode,title,author,abstract,pubdate,citation_count,doi,identifier,property,pub,eprint",
             "rows": rows,
             "start": start_index,
             "sort": sort
@@ -111,6 +112,17 @@ class AdsClient:
         except Exception as e:
             raise RuntimeError(f"Error al procesar resultados de NASA ADS: {str(e)}")
 
+    def _extract_arxiv_id(self, text: str) -> Optional[str]:
+        """Extract clean arXiv ID from string (e.g., 'arXiv:2509.18078', '10.48550/arXiv.2509.18078', 'astro-ph/0112345')."""
+        if not text:
+            return None
+        clean_text = re.sub(r'^arxiv:\s*', '', text, flags=re.IGNORECASE).strip()
+        pattern = r'(?:[a-zA-Z\-]+(?:\.[a-zA-Z]{2})?/\d{7}|\d{4}\.\d{4,5})(?:v\d+)?'
+        match = re.search(pattern, clean_text)
+        if match:
+            return match.group(0)
+        return None
+
     def _parse_doc(self, doc: dict) -> Optional[Article]:
         """Parse raw NASA ADS document dict into Article object."""
         try:
@@ -129,25 +141,41 @@ class AdsClient:
             if citations is None:
                 citations = 0
 
-            # Extract arXiv ID & DOI from identifiers list
+            # Extract arXiv ID & DOI from fields and identifier list
             arxiv_id = None
             doi = None
+
+            # 1. Check direct eprint field if available from ADS Solr doc
+            eprint = doc.get("eprint")
+            if eprint:
+                arxiv_id = self._extract_arxiv_id(str(eprint))
+
+            # 2. Inspect identifier array
             identifiers = doc.get("identifier", [])
             for ident in identifiers:
-                if ident.startswith("arXiv:"):
-                    arxiv_id = ident.replace("arXiv:", "")
-                elif "arXiv" in ident and "/" in ident:
-                    arxiv_id = ident.split("arXiv:")[-1]
-                elif "/" in ident and ("10." in ident):
-                    doi = ident
+                ident_str = str(ident).strip()
+
+                if not arxiv_id:
+                    extracted_arxiv = self._extract_arxiv_id(ident_str)
+                    if extracted_arxiv:
+                        arxiv_id = extracted_arxiv
+
+                if "/" in ident_str and ("10." in ident_str):
+                    if not doi:
+                        doi = ident_str
+                    elif "10.48550/arXiv" in doi and "10.48550/arXiv" not in ident_str:
+                        doi = ident_str
 
             doi_list = doc.get("doi", [])
-            if doi_list and not doi:
-                doi = doi_list[0]
+            if doi_list:
+                for d in doi_list:
+                    if not doi or ("10.48550/arXiv" in doi and "10.48550/arXiv" not in d):
+                        doi = d
+                        break
 
             journal = doc.get("pub", "NASA ADS")
 
-            url = f"https://ui.adsabs.harvard.edu/abs/{bibcode}/abstract" if bibcode else f"https://ui.adsabs.harvard.edu"
+            url = f"https://ui.adsabs.harvard.edu/abs/{bibcode}/abstract" if bibcode else "https://ui.adsabs.harvard.edu"
             pdf_url = f"https://arxiv.org/pdf/{arxiv_id}.pdf" if arxiv_id else f"https://ui.adsabs.harvard.edu/abs/{bibcode}/pdf"
 
             return Article(

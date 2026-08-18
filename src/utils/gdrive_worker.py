@@ -91,8 +91,16 @@ class GDriveUploadWorker(QThread):
             tmp_filepath = os.path.join(tmpdir, filename)
 
             # Download PDF
-            resp = requests.get(article.pdf_url, stream=True, timeout=30)
+            headers = {
+                "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+            }
+            resp = requests.get(article.pdf_url, headers=headers, stream=True, timeout=30)
             resp.raise_for_status()
+
+            content_type = resp.headers.get("Content-Type", "").lower()
+            if "html" in content_type:
+                raise ValueError("El enlace especificado no devolvió un archivo PDF (se obtuvo una página web HTML). El PDF de este artículo no está disponible públicamente en arXiv o requiere acceso a través del sitio web de la editorial.")
+
             with open(tmp_filepath, 'wb') as f:
                 for chunk in resp.iter_content(chunk_size=8192):
                     f.write(chunk)
