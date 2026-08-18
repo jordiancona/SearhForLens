@@ -1,0 +1,43 @@
+# Python & Virtual Environments
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+searchforlens/
+venv/
+.venv/
+env/
+ENV/
+
+# PyInstaller & Build artifacts
+build/
+dist/
+*.manifest
+*.spec.log
+
+# User Tokens & Sensitive Configuration (Do not commit secrets or local tokens)
+config.json
+token.json
+credentials.json
+client_secret*.json
+
+# macOS System Files
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+
+# IDEs and Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+.project
+.pydevproject
+
+# Environment & Local Test Exports
+test_export.*
+*.log
