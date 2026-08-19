@@ -106,24 +106,27 @@ class SearchPanel(QWidget):
         year_layout.addWidget(self.spin_end_year)
         filters_layout.addLayout(year_layout)
 
-        # Source Selection (arXiv, ADS, Both)
+        # Source Selection (Todas, arXiv, ADS, INSPIRE-HEP)
         source_lbl = QLabel("Fuente de Datos:")
         filters_layout.addWidget(source_lbl)
 
         source_btn_layout = QHBoxLayout()
-        self.radio_both = QRadioButton("Ambos")
+        self.radio_all = QRadioButton("Todas")
         self.radio_arxiv = QRadioButton("arXiv")
         self.radio_ads = QRadioButton("NASA ADS")
-        self.radio_both.setChecked(True)
+        self.radio_inspire = QRadioButton("INSPIRE")
+        self.radio_all.setChecked(True)
 
         self.source_group = QButtonGroup(self)
-        self.source_group.addButton(self.radio_both)
+        self.source_group.addButton(self.radio_all)
         self.source_group.addButton(self.radio_arxiv)
         self.source_group.addButton(self.radio_ads)
+        self.source_group.addButton(self.radio_inspire)
 
-        source_btn_layout.addWidget(self.radio_both)
+        source_btn_layout.addWidget(self.radio_all)
         source_btn_layout.addWidget(self.radio_arxiv)
         source_btn_layout.addWidget(self.radio_ads)
+        source_btn_layout.addWidget(self.radio_inspire)
         filters_layout.addLayout(source_btn_layout)
 
         # Options: Sort By & Max Results
@@ -180,11 +183,13 @@ class SearchPanel(QWidget):
             self.query_input.setFocus()
 
     def _on_search_clicked(self):
-        source = "both"
+        source = "all"
         if self.radio_arxiv.isChecked():
             source = "arxiv"
         elif self.radio_ads.isChecked():
             source = "ads"
+        elif self.radio_inspire.isChecked():
+            source = "inspire"
 
         params = {
             "preset_type": self.active_preset,

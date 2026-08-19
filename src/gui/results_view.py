@@ -34,10 +34,12 @@ class ArticleCardWidget(QFrame):
         top_row.setSpacing(8)
 
         src_badge = QLabel(self.article.source)
-        if "arXiv" in self.article.source and "ADS" in self.article.source:
+        if "+" in self.article.source:
             src_badge.setObjectName("BadgeBoth")
         elif "arXiv" in self.article.source:
             src_badge.setObjectName("BadgeArxiv")
+        elif "INSPIRE" in self.article.source:
+            src_badge.setObjectName("BadgeInspire")
         else:
             src_badge.setObjectName("BadgeAds")
         top_row.addWidget(src_badge)
@@ -56,6 +58,10 @@ class ArticleCardWidget(QFrame):
             arxiv_lbl = QLabel(f"arXiv:{self.article.arxiv_id}")
             arxiv_lbl.setObjectName("CardMeta")
             top_row.addWidget(arxiv_lbl)
+        elif self.article.inspire_id:
+            inspire_lbl = QLabel(f"INSPIRE:{self.article.inspire_id}")
+            inspire_lbl.setObjectName("CardMeta")
+            top_row.addWidget(inspire_lbl)
 
         top_row.addStretch()
         layout.addLayout(top_row)

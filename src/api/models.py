@@ -13,6 +13,7 @@ class Article:
     source: str    # "arXiv", "NASA ADS", or "Both"
     arxiv_id: Optional[str] = None
     bibcode: Optional[str] = None
+    inspire_id: Optional[str] = None
     doi: Optional[str] = None
     pdf_url: Optional[str] = None
     url: Optional[str] = None
@@ -30,6 +31,7 @@ class Article:
             "source": self.source,
             "arxiv_id": self.arxiv_id,
             "bibcode": self.bibcode,
+            "inspire_id": self.inspire_id,
             "doi": self.doi,
             "pdf_url": self.pdf_url,
             "url": self.url,
@@ -49,6 +51,7 @@ class Article:
             source=data.get("source", "Unknown"),
             arxiv_id=data.get("arxiv_id"),
             bibcode=data.get("bibcode"),
+            inspire_id=data.get("inspire_id"),
             doi=data.get("doi"),
             pdf_url=data.get("pdf_url"),
             url=data.get("url"),

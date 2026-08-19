@@ -324,6 +324,14 @@ QLabel#BadgeAds {
     font-size: 10px;
     font-weight: 700;
 }
+QLabel#BadgeInspire {
+    background-color: #0e7490;
+    color: #ecfeff;
+    border-radius: 4px;
+    padding: 2px 6px;
+    font-size: 10px;
+    font-weight: 700;
+}
 QLabel#BadgeBoth {
     background-color: #065f46;
     color: #ecfdf5;
